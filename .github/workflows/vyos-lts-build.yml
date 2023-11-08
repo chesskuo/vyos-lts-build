@@ -22,7 +22,7 @@ jobs:
 
       - name: Build vyos iso
         working-directory: ./vyos-build
-        run: docker run --rm --privileged -v $(pwd):/vyos -w /vyos vyos/vyos-build:equuleus "./configure --architecture amd64 --build-by 'owo@chesskuo.tw' --build-type release --version '${{ env.VYOS_VERSION }}'; sudo make iso"
+        run: docker run --rm --privileged -v $(pwd):/vyos -w /vyos vyos/vyos-build:equuleus bash -c "./configure --architecture amd64 --build-by 'owo@chesskuo.tw' --build-type release --version '${{ env.VYOS_VERSION }}'; sudo make iso"
 
       - name: Copy vyos iso
         run: cp ./vyos-build/build/live-image-amd64.hybrid.iso ./vyos-${{ env.VYOS_VERSION }}-amd64.iso
