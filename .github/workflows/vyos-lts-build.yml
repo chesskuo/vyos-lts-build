@@ -21,6 +21,16 @@ jobs:
         run: echo "VYOS_VERSION=${{ env.LTS_VERSION }}-lts-$(git log -n 1 --format='format:%h' ${{ env.LTS_VERSION }})" >> $GITHUB_ENV
 
       - name: Build vyos iso
-        run: |
-          echo ${{ env.VYOS_VERSION }}
-          echo tetsetestsests
+        working-directory: ./vyos-build
+        run: docker run --rm --privileged -v $(pwd):/vyos -w /vyos vyos/vyos-build:equuleus "./configure --architecture amd64 --build-by 'owo@chesskuo.tw' --build-type release --version '${{ env.VYOS_VERSION }}'; sudo make iso"
+
+      - name: Copy vyos iso
+        run: cp ./vyos-build/build/live-image-amd64.hybrid.iso ./vyos-${{ env.VYOS_VERSION }}-amd64.iso
+
+      - name: Upload release file
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VYOS_VERSION }}
+          fail_on_unmatched_files: true
+          files: |
+            ./vyos-${{ env.VYOS_VERSION }}-amd64.iso
