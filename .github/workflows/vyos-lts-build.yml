@@ -19,5 +19,5 @@ jobs:
       - name: Set vyos version
         working-directory: ./vyos-build
         run: |
-          echo "VYOS_VERSION=$LTS_VERSION-lts-$(git log -n 1 --format='format:%h' $LTS_VERSION)" >> $GITHUB_ENV
-          echo $VYOS_VERSION
+          echo "VYOS_VERSION=${{ env.LTS_VERSION }}-lts-$(git log -n 1 --format='format:%h' ${{ env.LTS_VERSION }})" >> $GITHUB_ENV
+          echo ${{ env.VYOS_VERSION }}
