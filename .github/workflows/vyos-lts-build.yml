@@ -1,0 +1,40 @@
+name: vyos lts build
+
+on:
+  workflow_dispatch:
+
+env:
+  LTS_VERSION: 1.3.4
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: git clone vyos-build
+        run: git clone -b equuleus --single-branch https://github.com/vyos/vyos-build
+
+      - name: set vyos version
+        working-directory: ./vyos-build
+        run: echo "VYOS_VERSION=${{ env.LTS_VERSION }}-lts-$(git log -n 1 --format='format:%h' ${{ env.LTS_VERSION }})" >> $GITHUB_ENV
+
+      - name: build vyos iso
+        working-directory: ./vyos-build
+        run: |
+          docker run --rm --privileged -v $(pwd):/vyos -w /vyos vyos/vyos-build:equuleus bash -c "./configure --architecture amd64 --build-by 'owo@chesskuo.tw' --build-type release --version '${{ env.VYOS_VERSION }}'; sudo make iso"
+          ls -al build/
+
+      - name: copy vyos iso
+        run: cp ./vyos-build/build/live-image-amd64.hybrid.iso ./vyos-${{ env.VYOS_VERSION }}-amd64.iso
+
+      - name: Upload release file
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VYOS_VERSION }}
+          fail_on_unmatched_files: true
+          files: |
+            ./vyos-${{ env.VYOS_VERSION }}-amd64.iso
