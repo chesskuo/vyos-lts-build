@@ -1,0 +1,23 @@
+name: VyOS lts build
+
+on:
+  workflow_dispatch:
+
+env:
+  LTS_VERSION: 1.3.4
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Git clone vyos-build
+        run: git clone -b equuleus --single-branch https://github.com/vyos/vyos-build
+
+      - name: Set vyos version
+        working-directory: ./vyos-build
+        run: |
+          echo "VYOS_VERSION=$LTS_VERSION-lts-$(git log -n 1 --format='format:%h' $LTS_VERSION)" >> $GITHUB_ENV
+          echo $VYOS_VERSION
